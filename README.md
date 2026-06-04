@@ -38,7 +38,7 @@ GEMINI_API_KEY="your_actual_key_here"
 Want to add your own custom AI prompts (like "Rewrite as a Pirate" or "Translate to Python code")? It is incredibly easy to modify.
 
 ### Clone the repository:
-git clone https://github.com/yourusername/stringcast-wayland.git
+git clone https://github.com/mclovin22117/stringcast-wayland.git
 cd stringcast-wayland
 
 ### Set up a virtual environment:
@@ -49,10 +49,13 @@ source venv/bin/activate
 pip install PyQt6 google-generativeai openai python-dotenv pyinstaller
 
 ### Make your changes:
-Open your main Python UI script and simply modify the dropdown list items (e.g., self.option_dropdown.addItems([...])) to add new features. The backend AI automatically understands natural language commands!
+Open your main Python UI script and simply modify the dropdown list items 
+(e.g., self.option_dropdown.addItems([...])) to add new features. 
+ The backend AI automatically understands natural language commands!
 
 ### Rebuild the standalone app:
 pyinstaller --noconsole --onefile your_script_name.py
+
 Your new custom app will be compiled and waiting for you inside the dist/ folder.
 
 ## 🤝 Contributing
