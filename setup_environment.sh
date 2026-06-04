@@ -41,6 +41,9 @@ source "$VENV_DIR/bin/activate"
 # *** FIX APPLIED HERE: Installing the missing SDK ***
 echo "Installing required Python packages (including google-generativeai)..."
 pip install google-generativeai
+# *** FIX APPLIED HERE: Installing the missing SDKs ***
+echo "Installing required Python packages..."
+pip install google-generativeai openai python-dotenv
 # Add any other packages your code uses (e.g., pip install requests)
 
 # --- 3. Execution ---
