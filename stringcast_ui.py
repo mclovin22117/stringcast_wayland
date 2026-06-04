@@ -49,6 +49,10 @@ class StringcastApp(QWidget):
         self.option_dropdown.addItems([
             "Improve Grammar & Flow",
             "Enhance Tone to Professional",
+            "Make it More Engaging",
+            "Translate to English",
+            "Translate to Hindi",
+            "Enoji based on this text",
             "Translate to Spanish",
             "Translate to French",
             "Summarize concisely"
