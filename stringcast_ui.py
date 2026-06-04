@@ -63,7 +63,7 @@ class StringcastApp(QWidget):
         self.output_label = QLabel("Enhanced Output:")
         self.output_box = QTextEdit()
         self.output_box.setReadOnly(True)
-        self.output_box.setStyleSheet("background-color: #f4f4f4;")
+        self.output_box.setStyleSheet("background-color: #f4f4f4; color: #000000;")
 
         # Copy Button
         self.copy_btn = QPushButton("📋 Copy to Clipboard")
