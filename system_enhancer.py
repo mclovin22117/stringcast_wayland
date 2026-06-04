@@ -1,160 +1,174 @@
 import os
+import sys
 # Placeholder imports for multiple APIs
-# import google.generativeai as genai
-# import openai 
+# try:
+#     import google.generativeai as genai
+# except ImportError:
+#     print("Warning: gemini library not found. Install with: pip install google-genai")
+#
+# try:
+#     import openai
+# except ImportError:
+#     print("Warning: openai library not found. Install with: pip install openai")
 
 # --- Configuration ---
-# !!! REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL KEYS !!!
-HARDCODED_KEYS = {
-    "Gemini": "",
-    "OpenAI": "",
+# BEST PRACTICE: Use environment variables for API keys!
+# You should set these in your shell:
+# export GEMINI_API_KEY="YOUR_KEY"
+# export OPENAI_API_KEY="YOUR_KEY"
+
+DEFAULT_KEYS = {
+    "Gemini": os.environ.get("GEMINI_API_KEY"),
+    "OpenAI": os.environ.get("OPENAI_API_KEY"),
 }
 PROVIDER_ORDER = ["Gemini", "OpenAI"] # Order of preference for fallback
 
 # --- API Client Setup ---
 
 def initialize_clients():
-    """Initializes API clients based on hardcoded keys."""
+    """Initializes API clients based on environment variables."""
     clients = {}
-    
-    # Placeholder initialization: In a real app, you'd initialize the actual SDK client here.
-    if HARDCODED_KEYS["Gemini"] != "YOUR_HARDCODED_GEMINI_API_KEY_HERE":
-        clients["Gemini"] = "GeminiClientPlaceholder" 
-        print("Client initialized for Gemini.")
-    else:
-        print("Gemini client skipped: Key not found/set.")
-        
-    if HARDCODED_KEYS["OpenAI"] != "YOUR_HARDCODED_OPENAI_API_KEY_HERE":
-        clients["OpenAI"] = "OpenAIClientPlaceholder"
-        print("Client initialized for OpenAI.")
-    else:
-        print("OpenAI client skipped: Key not found/set.")
-        
+
+    # Check for and initialize Gemini
+    gemini_key = DEFAULT_KEYS["Gemini"]
+    if gemini_key:
+        try:
+            # REAL IMPLEMENTATION: client = genai.Client(api_key=gemini_key)
+            clients["Gemini"] = "GeminiClientPlaceholder"
+            print("✅ Client initialized for Gemini.")
+        except Exception as e:
+            print(f"❌ Error initializing Gemini client: {e}")
+
+    # Check for and initialize OpenAI
+    openai_key = DEFAULT_KEYS["OpenAI"]
+    if openai_key:
+        try:
+            # REAL IMPLEMENTATION: client = openai.OpenAI(api_key=openai_key)
+            clients["OpenAI"] = "OpenAIClientPlaceholder"
+            print("✅ Client initialized for OpenAI.")
+        except Exception as e:
+            print(f"❌ Error initializing OpenAI client: {e}")
+
     return clients
 
 # Initialize clients once when the script starts
 AI_CLIENTS = initialize_clients()
 
+def construct_prompt(function_name: str, text: str) -> str:
+    """
+    Dynamically builds the system prompt based on the selected enhancement task.
+    This is critical for consistent LLM behavior.
+    """
+    print(f"    [Prompting] Building context for: {function_name}...")
+    if function_name == "Improve Grammar & Flow":
+        return f"You are a master copyeditor. Your task is to take the following raw text and improve its grammar, sentence structure, and overall flow while strictly maintaining the original meaning and authoritative tone. Only return the perfected text."
+    elif function_name == "Enhance Tone to Professional":
+        return f"You are a professional business communication assistant. Take the following raw text and rewrite it to adopt a formal, highly professional, and measured tone, suitable for a corporate memo. Do not alter the core message."
+    elif function_name.startswith("Translate"):
+        # Function Name example: "Translate to Spanish"
+        target_lang = function_name.split("to ")[-1].strip()
+        return f"You are a professional translator. Translate the following text accurately and naturally into {target_lang}. Only return the translated text."
+    else:
+        return "Please process this text with maximum clarity and sophistication."
+
+def call_llm_api(provider_name: str, text_to_enhance: str, system_prompt: str) -> str:
+    """
+    CORE API INTERACTION FUNCTION.
+    Handles the logic for calling a REAL API client.
+    """
+    print(f"    -> Sending request to {provider_name}...")
+
+    # --- 🛑 PASTE REAL API LOGIC HERE 🛑 ---
+    # If the provider_name is "Gemini", this block should use the 'genai' client.
+    # If the provider_name is "OpenAI", this block should use the 'openai' client.
+
+    if provider_name == "Gemini":
+        # --- MOCK SUCCESS SCENARIO (REPLACING OLD MOCK) ---
+        if "FAIL" not in text_to_enhance:
+            return f"[SUCCESS via Gemini] {system_prompt} applied. The text was transformed with advanced reasoning and fluency."
+        else:
+            # Simulate a specific API business logic failure (e.g., bad prompt structure)
+            raise ValueError("Simulated Gemini Internal Processing Error: Content flagged.")
+
+    elif provider_name == "OpenAI":
+        # --- MOCK FAILURE SCENARIO (REPLACING OLD MOCK) ---
+        # Always simulate failure for the first attempt to demonstrate fallback
+        raise ConnectionError(f"{provider_name} API Rate Limit Exceeded during batch processing.")
+
+    # If we got here, something unexpected happened in the mock setup
+    raise NotImplementedError(f"API call logic for {provider_name} is not implemented.")
+    # -------------------------------------------------------
 
 def try_transform_text(text_to_enhance: str, function_name: str) -> str:
     """
-    Attempts to transform text using multiple APIs in sequence (Fallback Mechanism).
+    Attempts to transform text using multiple APIs in sequence (Robust Fallback Mechanism).
     """
-    
-    for provider_name in PROVIDER_ORDER:
-        
-        # Check if a client was successfully initialized for this provider
-        if provider_name not in AI_CLIENTS:
-             print(f"--> Skipping {provider_name} because no key was provided.")
+    # 1. Build the Prompt context first
+    system_prompt = construct_prompt(function_name, text_to_enhance)
+
+    # 2. Iteratively try the providers
+    for provider_name in [name for name in ["Gemini", "OpenAI"] if name == "Gemini" or name == "OpenAI"]:
+
+        # Check if the client is configured (using a simple check for simulation)
+        if provider_name == "Gemini" and "Gemini" not in globals(): # Replace with actual client check
              continue
-             
-        print(f"\n--> Attempting conversion using {provider_name} API...")
-        
+        if provider_name == "OpenAI" and "OpenAI" not in globals():
+             continue
+
+        print(f"\n--- Attempting connection using {provider_name} ---")
         try:
-            # =======================================================================
-            # !!! CRITICAL SECTION: REPLACE THE MOCK LOGIC BELOW !!!
-            # =======================================================================
-            
-            # --- MOCK SUCCESS SCENARIO ---
-            # Simulate success for Gemini on the first try
-            if provider_name == "Gemini":
-                if "FAIL" not in text_to_enhance: # Simulate failure if text contains "FAIL"
-                    result = f"[SUCCESS] Processed '{text_to_enhance}' using {provider_name} advanced reasoning."
-                    print(f"    SUCCESS: {result}")
-                    return result
-                else:
-                    # Simulate a failure to trigger fallback
-                    raise ConnectionError(f"{provider_name} API returned a specific failure condition.")
-            
-            # --- MOCK FAILURE SCENARIO ---
-            elif provider_name == "OpenAI":
-                 # Always simulate failure for OpenAI on this mock example 
-                 # so you can see the fallback trigger.
-                raise ConnectionError(f"{provider_name} API Rate Limit Exceeded.")
-                
-            # --- END MOCK SECTION ---
-            
+            # Call the specific API function (this is where the real API call goes)
+            result = globals()[provider_name](provider_name, system_prompt=system_prompt)
+
+            # If successful, return the result immediately (Success!)
+            print(f"✅ Success using {provider_name}!")
+            return f"[SUCCESS via {provider_name}]: {result}"
+
         except Exception as e:
-            # If the API fails, catch the exception and fall through to the next provider
-            print(f"    FAILURE: {e.__class__.__name__} caught. Falling back to next provider.")
+            print(f"❌ Failed using {provider_name}: {e.__class__.__name__} - {e}. Next provider!")
+            # Continue to the next provider if the current one fails
             continue
 
-    # If the loop finishes without a successful return
-    return "FATAL ERROR: All configured APIs failed to process the request. Check keys and logs."
+    # If the loop completes without returning a result
+    return "\n⚠️ FATAL: ALL configured APIs failed to process the request."
 
-# ===============================================================================
+# ====================================================================
+# SIMULATION STUBS (REPLACE THESE WITH YOUR ACTUAL CLIENT CALLS)
+# ====================================================================
+def Gemini(provider_name, system_prompt):
+    """Simulates calling the Gemini API."""
+    # In a real application, you would initialize your client here.
+    if "Gemini" in provider_name:
+        if "fail_scenario" in system_prompt:
+           raise ConnectionError("Authentication token expired for Gemini.")
+        return "The advanced AI model provided a comprehensive and witty response."
+    raise NotImplementedError(f"Client stub missing for {provider_name}")
 
-# --- (rest of the script: get_user_input, select_function, main_app_loop) ---
-# NOTE: You must copy and paste the supporting functions (get_user_input, select_function, main_app_loop) 
-# from the previous answer back into this file, ensuring they call try_transform_text.
+def OpenAI(provider_name, system_prompt):
+    """Simulates calling the OpenAI API."""
+    if "OpenAI" in provider_name:
+        if "fail_scenario" in system_prompt:
+            raise TimeoutError("API endpoint timed out.")
+        return "OpenAI provided a precise and helpful summary matching the prompt requirements."
+    raise NotImplementedError(f"Client stub missing for {provider_name}")
 
-def get_user_input():
-    """Captures text input from the user in the TUI."""
-    return input("\nEnter text to process: ").strip()
+# ====================================================================
+# EXECUTION EXAMPLE
+# ====================================================================
 
-def select_function():
-    """Displays the function menu and gets user choice."""
-    print("\n" + "="*60)
-    print("✨ AI WRITING ASSISTANT MENU ✨")
-    print("Please select the action you want to perform:")
-    print("1. Improve Grammar & Flow (Fix)")
-    print("2. Enhance Tone (Professionalize)")
-    print("3. Translate")
-    print("4. Exit")
-    print("="*60)
-    
-    while True:
-        choice = input("Select function (1-4): ").strip()
-        if choice == '1':
-            return "Improve Grammar & Flow"
-        elif choice == '2':
-            return "Enhance Tone to Professional"
-        elif choice == '3':
-            return "Translate"
-        elif choice == '4':
-            return "EXIT"
-        else:
-            print("Invalid choice. Please select a number from the menu.")
+print("=========================================")
+print("RUNNING TEST CASE 1: Successful handoff (Test Success)")
+print("=========================================")
+# To test success on the first provider, modify the stub to always succeed if called first.
+result1 = Gemini("Gemini", "This is a standard query.")
+print("\nFINAL OUTPUT 1:", result1)
 
+print("\n\n=========================================")
+print("RUNNING TEST CASE 2: Fallback to second provider (Test Fallback)")
+print("=========================================")
+# Modify the stub to make Gemini fail, forcing the fallthrough to OpenAI
+def Gemini(provider_name, system_prompt):
+    raise ConnectionError("Authentication token expired for Gemini.")
 
-def main_app_loop():
-    """The main loop simulating the application window logic."""
-    print("\n================================================")
-    print("      Welcome to the AI Text Transformer!      ")
-    print("==========================================================")
-    
-    while True:
-        # 1. Get Text Input
-        raw_text = get_user_input()
-        if not raw_text:
-            continue
-
-        # 2. Select Function
-        function_name = select_function()
-
-        if function_name == "EXIT":
-            print("\nGoodbye! The application is closing.")
-            break
-        
-        # 3. Handle Specific Function Requirements (e.g., Translation)
-        if function_name == "Translate":
-            target_lang = input("Which language do you want to translate this into? (e.g., Spanish): ").strip()
-            if not target_lang:
-                print("Translation failed: Target language cannot be empty. Please try again.")
-                continue
-            function_name = f"Translate to {target_lang}"
-        
-        # 4. Process Text (Uses the new fallback function)
-        enhanced_text = try_transform_text(raw_text, function_name)
-        
-        # 5. Display and Copy
-        print("\n" + "#"*60)
-        print("✅ Processing Complete!")
-        print("--- SUGGESTION ---")
-        print(enhanced_text)
-        print("#"*60)
-        print("💡 ACTION: The transformed text is ready to be manually copied.")
-
-
-if __name__ == "__main__":
-    main_app_loop()
+result2 = Gemini("Gemini", "This is a standard query.")
+print("\nFINAL OUTPUT 2:", result2)
