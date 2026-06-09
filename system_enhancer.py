@@ -96,23 +96,29 @@ def call_llm_api(provider_name: str, text_to_enhance: str, system_instruction: s
 def try_transform_text(text_to_enhance: str, function_name: str) -> str:
     """Attempts to transform text using multiple APIs in sequence."""
     system_instruction = construct_prompt(function_name)
+    errors = []
+
+    # Check if keys even loaded properly
+    if not AI_CLIENTS:
+        return "⚠️ FATAL: No AI clients initialized. Is your .env file in the exact same folder as the app?"
 
     for provider_name in PROVIDER_ORDER:
         if provider_name not in AI_CLIENTS:
-             print(f"⚠️ Skipping {provider_name} (Not configured or missing API key).")
+             errors.append(f"[{provider_name}] Skipped: No API key found.")
              continue
 
-        print(f"\n--- Attempting connection using {provider_name} ---")
         try:
+            # Attempt the real API call
             result = call_llm_api(provider_name, text_to_enhance, system_instruction)
-            print(f"✅ Success using {provider_name}!")
             return result
         except Exception as e:
-            print(f"❌ Failed using {provider_name}: {e.__class__.__name__} - {e}. Attempting fallback...")
+            # Catch the specific error so we can see it in the UI
+            errors.append(f"[{provider_name}] Failed: {e.__class__.__name__} - {str(e)}")
             continue
 
-    return "\n⚠️ FATAL: ALL configured APIs failed to process the request."
-
+    # If all fail, print the exact reasons to the app window
+    error_details = "\n".join(errors)
+    return f"⚠️ FATAL: ALL configured APIs failed.\n\nDiagnostic Info:\n{error_details}"
 # ====================================================================
 # REAL EXECUTION EXAMPLES
 # ====================================================================
